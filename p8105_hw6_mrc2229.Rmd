@@ -1,0 +1,20 @@
+---
+title: "p8105_hw6_mrc2229"
+author: "Matthew Curran"
+date: "November 19, 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(janitor)
+library(rvest)
+library(viridis)
+library(broom)
+```
+
+```{r}
+birthweight_data = read_csv ("./data/birthweight.csv") %>%
+  janitor::clean_names() 
+```
+
