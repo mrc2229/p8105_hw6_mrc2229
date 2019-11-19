@@ -13,8 +13,32 @@ library(viridis)
 library(broom)
 ```
 
+# Problem 1
+## Bring in and clean the birthweight data consisting of roughly 4000 children.
+
 ```{r}
 birthweight_data = read_csv ("./data/birthweight.csv") %>%
-  janitor::clean_names() 
+  janitor::clean_names() %>%
+  rename(
+    b_sex=babysex,
+    b_headcirc=bhead,
+    b_length=blength,
+    b_bwt=bwt,
+    m_wt_delivery=delwt, 
+    fam_income_month=fincome, 
+    f_race=frace,
+    gest_age_wks=gaweeks, 
+    m_age_menarche=menarche, 
+    m_hgt=mheight,
+    m_age_delivery=momage,
+    m_race=mrace,
+    births_prior=parity,
+    prev_low_bwt=pnumlbw,
+    prev_small_gest=pnumsga,
+    m_prepreg_bmi=ppbmi,
+    m_prepreg_wt=ppwt,
+    ave_smoke=smoken,
+    m_preg_wt_gain=wtgain
+  )
 ```
 
