@@ -89,5 +89,16 @@ coef(my_bw_model)
 * With an R-squared value of 0.2175, 21.75% of the variation in a baby's birthweight can be explained by this linear model, the rest remains unexplained.
 
 ## Plot of model residuals against fitted values
+```{r}
+resid_fit_plot = birthweight_data %>% 
+  add_predictions(my_bw_model) %>%
+  add_residuals(my_bw_model) %>%
+  ggplot(aes(x = resid, y = pred)) + geom_point() + 
+  geom_smooth(aes(y = pred))
 
+resid_fit_plot
+```
 
+* The above plot shows my birthwieght predicting linear model's residuals against the fitted values from the model. A smooth predictive line was added to the model.
+
+## Comparing my model to two others
