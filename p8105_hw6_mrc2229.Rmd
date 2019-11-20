@@ -143,3 +143,52 @@ pivot_longer(
 ```
 
 * Now we get a sense of variance in prediction error and can compare prediction error distributions across method and come to the same conclusion as before; the model with head circumference, length, sex, and all their interactions is the best model of all three and has the most predictive accuracy.
+
+# Problem 2
+## Load in Weather data and Bootstrap 
+```{r}
+set.seed(1)
+
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())%>% 
+  bootstrap(n = 50)
+```
+
+## Finding R-squared 
+```{r}
+r_strap=weather_df %>%
+  mutate(models = map(strap, ~lm(tmax ~ tmin, data = .x) ),
+         results = map(models, broom::glance)) %>% 
+  select(-strap, -models) %>% 
+  unnest() %>% 
+  ggplot(aes(x = r.squared)) + geom_density()
+
+r_strap
+```
+
+## Finding log(β^0∗β^1)
+```{r}
+beta_strap=weather_df %>%
+  mutate(
+    models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
+    results = map(models, broom::tidy))%>% 
+  select(-strap, -models) %>% 
+  unnest() %>% 
+  select(id = `.id`, term, estimate) %>% 
+  spread(key = term, value = estimate) %>% 
+  rename(beta0 = `(Intercept)`, beta1 = tmin) %>% 
+  mutate(log_b0b1 = (beta0 * beta1)) %>% 
+  ggplot(aes(x = log_b0b1)) + geom_density()
+
+beta_strap
+```
+
