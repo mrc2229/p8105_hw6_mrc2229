@@ -160,10 +160,10 @@ weather_df =
     tmin = tmin / 10,
     tmax = tmax / 10) %>%
   select(name, id, everything())%>% 
-  bootstrap(n = 50)
+  bootstrap(n = 5000)
 ```
 
-## Finding R-squared 
+## Distribution of R-squared 
 ```{r}
 r_strap=weather_df %>%
   mutate(models = map(strap, ~lm(tmax ~ tmin, data = .x) ),
@@ -174,8 +174,9 @@ r_strap=weather_df %>%
 
 r_strap
 ```
+* The distribution of r-squared estimates appears to be left-skewed, and most of the estimates seem to fall between 0.90 and 0.92, with some higher than 0.93 and some lower than 0.88. Overall, the estimated values of r-squared in this sample are high.
 
-## Finding log(β^0∗β^1)
+## Distribution of log(β^0∗β^1)
 ```{r}
 beta_strap=weather_df %>%
   mutate(
@@ -192,3 +193,4 @@ beta_strap=weather_df %>%
 beta_strap
 ```
 
+* The distribution of log(β^0∗β^1) fairly symetric. Most of the estimates seem to fall between 7.2 and 7.8, with some estimates going above 8.0 on the higher end and near 6.8 on the lower end.
