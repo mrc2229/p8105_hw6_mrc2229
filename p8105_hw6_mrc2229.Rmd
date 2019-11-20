@@ -78,7 +78,6 @@ coef(m_age_delivery_model)
 * All of the proposed predictors were individually significant, so a multivariable linear model was made using all three.
 ```{r}
 my_bw_model = lm(b_bwt ~ m_preg_wt_gain + gest_age_wks + m_age_delivery, data = birthweight_data)
-my_bw_model
 summary(my_bw_model)
 coef(my_bw_model)
 ```
@@ -102,3 +101,27 @@ resid_fit_plot
 * The above plot shows my birthwieght predicting linear model's residuals against the fitted values from the model. A smooth predictive line was added to the model.
 
 ## Comparing my model to two others
+* The first model predicts baby birthweight via the direct effects of length at birth and gestational age as predictors.
+* The second model uses head circumference, length, sex, and all their interactions (including the three-way interaction) as the predictors.
+
+```{r}
+main_eff_model = lm(b_bwt ~ b_length + gest_age_wks, data = birthweight_data)
+interact_model = lm(b_bwt ~ b_length + b_sex + b_headcirc + b_length*b_sex + b_length*b_headcirc + b_sex*b_headcirc + b_length*b_sex*b_headcirc, data = birthweight_data)
+
+summary(main_eff_model)
+summary(interact_model)
+```
+
+```{r}
+rmse(my_bw_model, birthweight_data)
+
+rmse(main_eff_model, birthweight_data)
+
+rmse(interact_model, birthweight_data)
+```
+
+* In terms of the cross-validated prediction error, the model with the lowest root mean squared errors (RMSEs) is suggested to work the best.
+* My original model has an RMSE of `r rmse(my_bw_model, birthweight_data)`
+* The model with the direct effects of length at birth and gestational age has an RMSE of `r rmse(main_eff_model, birthweight_data)`
+* The final model with head circumference, length, sex, and all their interactions has an RMSE of `r rmse(interact_model, birthweight_data)`
+* The RMSEs are suggestive that both of the comparison models work better than my proposed model, and that the model with head circumference, length, sex, and all their interactions is the best model of all three.
