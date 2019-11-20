@@ -11,6 +11,8 @@ library(janitor)
 library(rvest)
 library(viridis)
 library(broom)
+library(modelr)
+library(mgcv)
 ```
 
 # Problem 1
@@ -39,6 +41,53 @@ birthweight_data = read_csv ("./data/birthweight.csv") %>%
     m_prepreg_wt=ppwt,
     ave_smoke=smoken,
     m_preg_wt_gain=wtgain
-  )
+  ) %>%
+  mutate(f_race=as.factor(f_race), m_race=as.factor(m_race), b_sex=as.factor(b_sex), malform=as.factor(malform)) 
 ```
+
+* Variables were renamed to be more descriptive and follow a more consistent structure. 
+* Variables for race, sex, and presence of malformations that could affect weight were converted from numeric to factor variables.
+* There was no missing data to fill in or remove.
+* There are `r nrow (birthweight_data)` observations in the birthweight data set and `r ncol (birthweight_data)` variables.
+
+## My Predictive Model
+* I hypothesize that a mother’s weight gain during pregnancy (in pounds), gestational age (in weeks), and the mother's age during delivery are significant predictors for predicting a baby's birthweight.
+* Univariate anaylsis was run on all three of these predictors first to see their individual significance before adding them to a multivariable model, with a 5% level of significance. Only individually significant variables are added to the final model.
+
+```{r}
+wt_gain_model = lm(b_bwt ~ m_preg_wt_gain, data = birthweight_data)
+summary(wt_gain_model)
+coef(wt_gain_model)
+```
+* With a p-value of <2e-16, there is sufficient evidence to suggest mother’s weight gain during pregnancy is a significant predictor of a baby's birthweight.
+
+```{r}
+gest_age_wks_model = lm(b_bwt ~ gest_age_wks, data = birthweight_data)
+summary(gest_age_wks_model)
+coef(gest_age_wks_model)
+```
+* With a p-value of <2e-16, there is sufficient evidence to suggest gestational age is a significant predictor of a baby's birthweight.
+
+```{r}
+m_age_delivery_model = lm(b_bwt ~ m_age_delivery, data = birthweight_data)
+summary(m_age_delivery_model)
+coef(m_age_delivery_model)
+```
+* With a p-value of <2e-16, there is sufficient evidence to suggest mother’s age at delivery is a significant predictor of a baby's birthweight.
+
+* All of the proposed predictors were individually significant, so a multivariable linear model was made using all three.
+```{r}
+my_bw_model = lm(b_bwt ~ m_preg_wt_gain + gest_age_wks + m_age_delivery, data = birthweight_data)
+my_bw_model
+summary(my_bw_model)
+coef(my_bw_model)
+```
+
+* The null hypothesis is that this model has no predictive value of a baby's birth weight. The alternative hypothesis is that this model has some predictive value of a baby's birth weight.
+* This multivariable model was found to have an F-statistic of 401.9 on 3 and 4338 Degrees of freedom with a p-value of < 2.2e-16.
+* Based on this F-statistic and p-value, we reject the null hyphothesis and conclude that the mother’s weight gain during pregnancy (in pounds), gestational age (in weeks), and the mother's age during delivery are significant predictors of a baby's birthweight.
+* With an R-squared value of 0.2175, 21.75% of the variation in a baby's birthweight can be explained by this linear model, the rest remains unexplained.
+
+## Plot of model residuals against fitted values
+
 
