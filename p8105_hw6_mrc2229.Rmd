@@ -112,16 +112,34 @@ summary(main_eff_model)
 summary(interact_model)
 ```
 
-```{r}
-rmse(my_bw_model, birthweight_data)
-
-rmse(main_eff_model, birthweight_data)
-
-rmse(interact_model, birthweight_data)
-```
-
 * In terms of the cross-validated prediction error, the model with the lowest root mean squared errors (RMSEs) is suggested to work the best.
 * My original model has an RMSE of `r rmse(my_bw_model, birthweight_data)`
 * The model with the direct effects of length at birth and gestational age has an RMSE of `r rmse(main_eff_model, birthweight_data)`
 * The final model with head circumference, length, sex, and all their interactions has an RMSE of `r rmse(interact_model, birthweight_data)`
-* The RMSEs are suggestive that both of the comparison models work better than my proposed model, and that the model with head circumference, length, sex, and all their interactions is the best model of all three.
+* The RMSEs are suggestive that both of the comparison models work better than my proposed model, and that the model with head circumference, length, sex, and all their interactions is the best model of all three. However, to get a sense of model stability we really need to iterate this whole process.
+
+```{r}
+bw_cv_df = 
+  crossv_mc(birthweight_data, 100)
+
+bw_cv_df = 
+  bw_cv_df %>% 
+  mutate(my_bw_model  = map(train, ~lm(b_bwt ~ m_preg_wt_gain + gest_age_wks + m_age_delivery, data = .x)),
+         main_eff_model  = map(train, ~lm(b_bwt ~ b_length + gest_age_wks, data = .x)),
+         interact_model  = map(train, ~lm(b_bwt ~ b_length + b_sex + b_headcirc + b_length*b_sex + b_length*b_headcirc + b_sex*b_headcirc + b_length*b_sex*b_headcirc, data = .x))) %>% 
+  mutate(rmse_my_bw_model = map2_dbl(my_bw_model, test, ~rmse(model = .x, data = .y)),
+         rmse_main_eff_model = map2_dbl(main_eff_model, test, ~rmse(model = .x, data = .y)),
+         rmse_interact_model = map2_dbl(interact_model, test, ~rmse(model = .x, data = .y)))
+
+bw_cv_df %>% 
+  select(starts_with("rmse")) %>% 
+pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
+```
+
+* Now we get a sense of variance in prediction error and can compare prediction error distributions across method and come to the same conclusion as before; the model with head circumference, length, sex, and all their interactions is the best model of all three and has the most predictive accuracy.
