@@ -177,11 +177,11 @@ r_plot=r_strap%>%
 r_plot
 ```
 
-* The distribution of r-squared estimates appears to be left-skewed, and most of the estimates seem to fall between 0.90 and 0.92, with some higher than 0.93 and some lower than 0.88. Overall, the estimated values of r-squared in this sample are high.
+* The distribution of r-squared estimates appears to be left-skewed, and most of the estimates appear to fall between 0.90 and 0.92, with some higher than 0.93 and some lower than 0.88. Overall, the estimated values of r-squared in this sample are high.
 
 * The 95% Confidence Interval of the r-squared estimates is (`r round(quantile(pull(r_strap, r.squared), probs=c(0.025,0.975)),digits=2)`).
 
-## Distribution of log(β^0∗β^1)
+## Distribution of log(β^0 ∗ β^1)
 ```{r}
 beta_strap=weather_df %>%
   mutate(
@@ -192,7 +192,7 @@ beta_strap=weather_df %>%
   select(id = `.id`, term, estimate) %>% 
   spread(key = term, value = estimate) %>% 
   rename(beta0 = `(Intercept)`, beta1 = tmin) %>% 
-  mutate(log_b0b1 = (beta0 * beta1))
+  mutate(log_b0b1 = log(beta0 * beta1))
 
 beta_plot=beta_strap %>%
   ggplot(aes(x = log_b0b1)) + geom_density()
@@ -200,6 +200,6 @@ beta_plot=beta_strap %>%
 beta_plot
 ```
 
-* The distribution of log(β^0∗β^1) fairly symetric. Most of the estimates seem to fall between 7.2 and 7.8, with some estimates going above 8.0 on the higher end and near 6.8 on the lower end.
+* The distribution of log(β^0 ∗ β^1) looks fairly symetric. Most of the estimates seem to fall between 1.97 and 2.03, with some estimates going above 2.10 on the higher end and near 1.93 on the lower end. It makes sense that the skewness went away due to the log transformation.
 
-* The 95% Confidence Interval of the log(β^0∗β^1) estimates is (`r round(quantile(pull(beta_strap, log_b0b1), probs=c(0.025,0.975)),digits=2)`).
+* The 95% Confidence Interval of the log(β^0 ∗ β^1) estimates is (`r round(quantile(pull(beta_strap, log_b0b1), probs=c(0.025,0.975)),digits=2)`).
